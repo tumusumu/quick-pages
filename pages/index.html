@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Pages</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    background: #0a0a0a;
+    color: #e5e5e5;
+    min-height: 100vh;
+    padding: 3rem 1.5rem;
+  }
+  .container { max-width: 640px; margin: 0 auto; }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    color: #737373;
+    font-size: 0.875rem;
+    margin-bottom: 2.5rem;
+  }
+  .pages { display: flex; flex-direction: column; gap: 1px; }
+  .page-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: #171717;
+    border: 1px solid #262626;
+    text-decoration: none;
+    color: #e5e5e5;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .page-card:first-child { border-radius: 12px 12px 0 0; }
+  .page-card:last-child { border-radius: 0 0 12px 12px; }
+  .page-card:only-child { border-radius: 12px; }
+  .page-card:hover { background: #1f1f1f; border-color: #404040; }
+  .page-card + .page-card { border-top: none; }
+  .page-info { display: flex; flex-direction: column; gap: 0.2rem; }
+  .page-name { font-weight: 500; font-size: 0.95rem; }
+  .page-desc { color: #737373; font-size: 0.8rem; }
+  .arrow { color: #525252; font-size: 1.1rem; }
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #262626;
+    color: #525252;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  .footer a { color: #737373; text-decoration: none; }
+  .footer a:hover { color: #a3a3a3; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Quick Pages</h1>
+  <p class="subtitle">想法 → HTML → 发布</p>
+
+  <div class="pages">
+    <a href="/birthday-party" class="page-card">
+      <div class="page-info">
+        <span class="page-name">Birthday Party</span>
+        <span class="page-desc">生日派对邀请页</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    <a href="https://github.com/tumusumu/quick-pages">GitHub</a>
+  </div>
+</div>
+</body>
+</html>
