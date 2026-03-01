@@ -23,8 +23,72 @@
   .subtitle {
     color: #737373;
     font-size: 0.875rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
   }
+
+  /* New page form */
+  .new-page {
+    background: #171717;
+    border: 1px solid #262626;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .new-page label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #a3a3a3;
+    margin-bottom: 0.5rem;
+  }
+  .new-page textarea {
+    width: 100%;
+    min-height: 100px;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #e5e5e5;
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .new-page textarea:focus { border-color: #555; }
+  .new-page textarea::placeholder { color: #525252; }
+  .new-page .btn-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    justify-content: flex-end;
+  }
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-primary {
+    background: #fff;
+    color: #0a0a0a;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Divider */
+  .section-label {
+    font-size: 0.75rem;
+    color: #525252;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Page list */
   .pages { display: flex; flex-direction: column; gap: 1px; }
   .page-card {
     display: flex;
@@ -46,6 +110,28 @@
   .page-name { font-weight: 500; font-size: 0.95rem; }
   .page-desc { color: #737373; font-size: 0.8rem; }
   .arrow { color: #525252; font-size: 1.1rem; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #fff;
+    color: #0a0a0a;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+    z-index: 10;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
   .footer {
     margin-top: 3rem;
     padding-top: 1.5rem;
@@ -63,6 +149,15 @@
   <h1>Quick Pages</h1>
   <p class="subtitle">想法 → HTML → 发布</p>
 
+  <div class="new-page">
+    <label for="idea">我想做一个页面...</label>
+    <textarea id="idea" placeholder="描述你想要的页面，比如：&#10;&#10;做一个产品发布倒计时页面，深色背景，中间大号倒计时数字，下面放产品名称和一句话描述。"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="submit-btn" onclick="submitIdea()">提交需求</button>
+    </div>
+  </div>
+
+  <p class="section-label">已发布的页面</p>
   <div class="pages">
     <a href="/birthday-party" class="page-card">
       <div class="page-info">
@@ -77,5 +172,39 @@
     <a href="https://github.com/tumusumu/quick-pages">GitHub</a>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const REPO = 'tumusumu/quick-pages';
+
+  function submitIdea() {
+    const textarea = document.getElementById('idea');
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    const title = text.length > 60 ? text.slice(0, 60) + '...' : text;
+    const body = `## 页面需求\n\n${text}\n\n---\n_来自 Quick Pages 首页提交_`;
+    const url = `https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=page-request`;
+
+    window.open(url, '_blank');
+    showToast('已跳转到 GitHub，确认提交即可');
+    textarea.value = '';
+  }
+
+  // Ctrl+Enter / Cmd+Enter to submit
+  document.getElementById('idea').addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      submitIdea();
+    }
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
 </body>
 </html>
