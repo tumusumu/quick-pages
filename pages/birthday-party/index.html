@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生日派对邀请函</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+  :root {
+    --coral: #FF6B6B;
+    --peach: #FFA07A;
+    --gold: #FFD700;
+    --cream: #FFF8F0;
+    --warm-brown: #5D4037;
+    --soft-pink: #FFE4E1;
+    --mint: #98D4BB;
+    --lavender: #C3AED6;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--cream);
+    color: var(--warm-brown);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ========== Confetti Canvas ========== */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ========== Hero Section ========== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(255,107,107,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(255,215,0,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(152,212,187,0.10) 0%, transparent 50%),
+      var(--cream);
+    z-index: 1;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(255,215,0,0.18) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,107,107,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.05); }
+  }
+
+  .cake-emoji {
+    font-size: 5rem;
+    animation: bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(255,107,107,0.25));
+    margin-bottom: 1rem;
+  }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .hero h1 {
+    font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    background: linear-gradient(135deg, var(--coral), var(--peach), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: slideUp 0.8s ease forwards 0.3s;
+  }
+
+  .hero .subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: #8D6E63;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    opacity: 0;
+    animation: slideUp 0.8s ease forwards 0.6s;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: slideUp 0.8s ease forwards 1.2s;
+  }
+
+  .scroll-hint span {
+    font-size: 0.85rem;
+    color: #BCAAA4;
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-arrow {
+    width: 24px; height: 24px;
+    border-right: 2px solid #BCAAA4;
+    border-bottom: 2px solid #BCAAA4;
+    transform: rotate(45deg);
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+
+  @keyframes arrowBounce {
+    0%,100% { transform: rotate(45deg) translateY(0); opacity: 1; }
+    50% { transform: rotate(45deg) translateY(6px); opacity: 0.5; }
+  }
+
+  /* ========== Info Cards ========== */
+  .info-section {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 3rem;
+  }
+
+  .section-title {
+    font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    text-align: center;
+    color: var(--coral);
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--coral), var(--gold));
+    border-radius: 2px;
+    margin: 0.6rem auto 0;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem 2rem 2rem 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    box-shadow:
+      0 4px 24px rgba(93,64,55,0.06),
+      0 1px 3px rgba(93,64,55,0.04);
+    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s ease;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  .card.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 12px 40px rgba(93,64,55,0.10),
+      0 2px 6px rgba(93,64,55,0.06);
+  }
+
+  .card-icon {
+    flex-shrink: 0;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+  }
+
+  .card-icon.time { background: linear-gradient(135deg, #FFE0E0, #FFC1C1); }
+  .card-icon.food { background: linear-gradient(135deg, #FFF3CD, #FFE082); }
+  .card-icon.kids { background: linear-gradient(135deg, #D4EDDA, #A8D8B9); }
+  .card-icon.fun  { background: linear-gradient(135deg, #E0D4F5, #C3AED6); }
+
+  .card-body h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: var(--warm-brown);
+  }
+
+  .card-body p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #8D6E63;
+    font-weight: 300;
+  }
+
+  .highlight {
+    display: inline-block;
+    background: linear-gradient(180deg, transparent 60%, rgba(255,215,0,0.28) 60%);
+    font-weight: 500;
+    color: var(--warm-brown);
+  }
+
+  /* ========== QR Section ========== */
+  .qr-section {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 1.5rem 5rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .qr-section .section-title {
+    margin-bottom: 1rem;
+  }
+
+  .qr-section .hint {
+    font-size: 0.95rem;
+    color: #BCAAA4;
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+
+  .qr-wrapper {
+    display: inline-block;
+    background: white;
+    border-radius: 24px;
+    padding: 1.8rem;
+    box-shadow:
+      0 8px 40px rgba(93,64,55,0.08),
+      0 2px 8px rgba(93,64,55,0.04);
+    position: relative;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .qr-wrapper.visible {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .qr-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 27px;
+    background: linear-gradient(135deg, var(--coral), var(--gold), var(--mint), var(--lavender));
+    z-index: -1;
+    opacity: 0.6;
+  }
+
+  .qr-placeholder {
+    width: 200px; height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #FAFAFA;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qr-placeholder canvas {
+    width: 100%; height: 100%;
+  }
+
+  .qr-label {
+    margin-top: 1.2rem;
+    font-size: 0.85rem;
+    color: #BCAAA4;
+    letter-spacing: 0.08em;
+  }
+
+  /* ========== Footer ========== */
+  .footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    font-size: 0.85rem;
+    color: #D7CCC8;
+    font-weight: 300;
+  }
+
+  .footer .hearts {
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ========== Decorative Balloons ========== */
+  .balloon {
+    position: fixed;
+    z-index: 0;
+    font-size: 2.5rem;
+    opacity: 0.12;
+    animation: balloonRise linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes balloonRise {
+    0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.12; }
+    90% { opacity: 0.12; }
+    100% { transform: translateY(-10vh) rotate(15deg); opacity: 0; }
+  }
+
+  /* ========== Responsive ========== */
+  @media (min-width: 600px) {
+    .cards { grid-template-columns: 1fr 1fr; }
+    .card { padding: 1.8rem; }
+  }
+
+  @media (max-width: 480px) {
+    .cake-emoji { font-size: 3.5rem; }
+    .card { padding: 1.4rem; gap: 1rem; }
+    .card-icon { width: 48px; height: 48px; font-size: 1.3rem; }
+    .qr-placeholder { width: 180px; height: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Floating Balloons -->
+<div class="balloon" style="left:5%; animation-duration:18s; animation-delay:0s;">🎈</div>
+<div class="balloon" style="left:20%; animation-duration:22s; animation-delay:3s;">🎈</div>
+<div class="balloon" style="left:40%; animation-duration:20s; animation-delay:7s;">🎈</div>
+<div class="balloon" style="left:65%; animation-duration:25s; animation-delay:2s;">🎈</div>
+<div class="balloon" style="left:85%; animation-duration:19s; animation-delay:5s;">🎈</div>
+<div class="balloon" style="left:50%; animation-duration:23s; animation-delay:10s;">🎈</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="cake-emoji">🎂</div>
+  <h1>你被邀请参加<br>一场生日派对！</h1>
+  <p class="subtitle">This Saturday · 一起来庆祝吧</p>
+  <div class="scroll-hint">
+    <span>下滑查看详情</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- Details -->
+<section class="info-section">
+  <h2 class="section-title">🎉 派对详情</h2>
+  <div class="cards">
+
+    <div class="card" data-reveal>
+      <div class="card-icon time">📅</div>
+      <div class="card-body">
+        <h3>时间安排</h3>
+        <p><span class="highlight">2月28日（周六）</span><br>下午 4:00 — 6:00，共两小时<br>精彩不容错过！</p>
+      </div>
+    </div>
+
+    <div class="card" data-reveal>
+      <div class="card-icon food">🍕</div>
+      <div class="card-body">
+        <h3>美食畅享</h3>
+        <p>现场准备了丰盛的餐点和饮品<br><span class="highlight">免费供应，敞开吃</span><br>空着肚子来就对了！</p>
+      </div>
+    </div>
+
+    <div class="card" data-reveal>
+      <div class="card-icon kids">👶</div>
+      <div class="card-body">
+        <h3>欢迎带娃</h3>
+        <p>大人孩子都欢迎！<br>可以放心<span class="highlight">带上小朋友</span>一起来<br>让孩子们也嗨起来</p>
+      </div>
+    </div>
+
+    <div class="card" data-reveal>
+      <div class="card-icon fun">🎊</div>
+      <div class="card-body">
+        <h3>欢乐时光</h3>
+        <p>好朋友 + 好吃的 + 好氛围<br>一起唱歌、吹蜡烛、许愿<br><span class="highlight">快乐加倍！</span></p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- QR -->
+<section class="qr-section">
+  <h2 class="section-title">📱 扫码报名</h2>
+  <p class="hint">扫描下方二维码即可报名参加派对</p>
+  <div class="qr-wrapper" data-reveal>
+    <div class="qr-placeholder">
+      <canvas id="qr-canvas" width="200" height="200"></canvas>
+    </div>
+    <p class="qr-label">长按识别 · 或截图扫码</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="hearts">🩷 🧡 💛</div>
+  <p>期待与你相见 ✨</p>
+</footer>
+
+<script>
+/* ===== Confetti Background ===== */
+(function() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const particles = [];
+  const colors = ['#FF6B6B','#FFA07A','#FFD700','#98D4BB','#C3AED6','#FFB6C1','#87CEEB'];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor() { this.reset(true); }
+    reset(init) {
+      this.x = Math.random() * W;
+      this.y = init ? Math.random() * H : -10;
+      this.size = Math.random() * 5 + 2;
+      this.speedY = Math.random() * 0.6 + 0.2;
+      this.speedX = (Math.random() - 0.5) * 0.4;
+      this.rotation = Math.random() * 360;
+      this.rotSpeed = (Math.random() - 0.5) * 2;
+      this.color = colors[Math.floor(Math.random() * colors.length)];
+      this.opacity = Math.random() * 0.35 + 0.08;
+      this.shape = Math.random() > 0.5 ? 'rect' : 'circle';
+    }
+    update() {
+      this.y += this.speedY;
+      this.x += this.speedX + Math.sin(this.y * 0.01) * 0.3;
+      this.rotation += this.rotSpeed;
+      if (this.y > H + 10) this.reset(false);
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.opacity;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation * Math.PI / 180);
+      ctx.fillStyle = this.color;
+      if (this.shape === 'rect') {
+        ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size * 0.6);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size/2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+/* ===== Scroll Reveal ===== */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 120);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+/* ===== QR Code Placeholder ===== */
+(function() {
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  const size = 200;
+  const modules = 25;
+  const moduleSize = size / modules;
+  const padding = 2;
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, size, size);
+
+  function drawFinderPattern(x, y) {
+    const s = moduleSize;
+    ctx.fillStyle = '#5D4037';
+    ctx.fillRect(x * s, y * s, 7 * s, 7 * s);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect((x+1)*s, (y+1)*s, 5*s, 5*s);
+    ctx.fillStyle = '#5D4037';
+    ctx.fillRect((x+2)*s, (y+2)*s, 3*s, 3*s);
+  }
+
+  drawFinderPattern(padding, padding);
+  drawFinderPattern(modules - 7 - padding, padding);
+  drawFinderPattern(padding, modules - 7 - padding);
+
+  const seed = 42;
+  function pseudoRandom(i) {
+    let x = Math.sin(seed + i) * 10000;
+    return x - Math.floor(x);
+  }
+
+  let idx = 0;
+  for (let r = padding; r < modules - padding; r++) {
+    for (let c = padding; c < modules - padding; c++) {
+      const inFinder1 = r < 7+padding && c < 7+padding;
+      const inFinder2 = r < 7+padding && c >= modules-7-padding;
+      const inFinder3 = r >= modules-7-padding && c < 7+padding;
+      if (inFinder1 || inFinder2 || inFinder3) continue;
+      if (pseudoRandom(idx++) > 0.55) {
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(c * moduleSize, r * moduleSize, moduleSize, moduleSize);
+      }
+    }
+  }
+})();
+</script>
+</body>
+</html>

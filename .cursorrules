@@ -1,0 +1,58 @@
+# Quick Pages — Cursor AI Rules
+
+You are generating self-contained HTML pages for the `quick-pages` project.
+
+## Output Rules
+
+1. **One file per page**: Output to `pages/<page-name>/index.html`
+2. **Self-contained**: Each HTML file must work standalone — no external build tools
+3. **CSS inline**: All styles in `<style>` tags within `<head>`
+4. **JS inline**: All scripts in `<script>` tags before `</body>`
+5. **External libs via CDN only**: Tailwind CDN, Google Fonts, Alpine.js, etc.
+6. **Mobile-first**: Always include `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+7. **Language**: Default `lang="zh-CN"` unless specified otherwise
+
+## Recommended CDNs
+
+- Tailwind CSS: `<script src="https://cdn.tailwindcss.com"></script>`
+- Alpine.js: `<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>`
+- Google Fonts: `<link href="https://fonts.googleapis.com/css2?family=...&display=swap" rel="stylesheet">`
+- Animate.css: `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">`
+
+## File Structure
+
+```
+pages/
+  <page-name>/
+    index.html    ← your output goes here
+```
+
+## Template
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Title</title>
+  <style>
+    /* All CSS here */
+  </style>
+</head>
+<body>
+  <!-- Content -->
+  <script>
+    // All JS here
+  </script>
+</body>
+</html>
+```
+
+## Quality Checklist
+
+- [ ] Works when opened directly in browser (file://)
+- [ ] Responsive on mobile and desktop
+- [ ] No external file dependencies (except CDN)
+- [ ] Meaningful `<title>` tag
+- [ ] Clean, readable code
