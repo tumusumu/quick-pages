@@ -1,0 +1,65 @@
+name: Generate Page
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  generate:
+    if: contains(github.event.issue.labels.*.name, 'page-request')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate page with Claude
+        id: generate
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: node .github/scripts/generate.mjs
+
+      - name: Comment and close issue
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const result = JSON.parse(fs.readFileSync('/tmp/generate-result.json', 'utf8'));
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: [
+                `✅ **页面已生成并部署！**`,
+                ``,
+                `🔗 **链接**: https://quick-pages.vercel.app/${result.slug}`,
+                `📄 **标题**: ${result.title}`,
+                ``,
+                `> Vercel 部署约需 30 秒，如页面未加载请稍候刷新。`,
+              ].join('\n'),
+            });
+            await github.rest.issues.update({
+              ...context.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+            });
+
+      - name: Comment error on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: '❌ 页面生成失败，请检查 Action 日志。',
+            });

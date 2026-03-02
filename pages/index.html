@@ -14,19 +14,10 @@
     padding: 3rem 1.5rem;
   }
   .container { max-width: 640px; margin: 0 auto; }
-  h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 0.5rem;
-  }
-  .subtitle {
-    color: #737373;
-    font-size: 0.875rem;
-    margin-bottom: 2rem;
-  }
+  h1 { font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+  .subtitle { color: #737373; font-size: 0.875rem; margin-bottom: 2rem; }
 
-  /* New page form */
+  /* Form */
   .new-page {
     background: #171717;
     border: 1px solid #262626;
@@ -57,14 +48,10 @@
   }
   .new-page textarea:focus { border-color: #555; }
   .new-page textarea::placeholder { color: #525252; }
-  .new-page .btn-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    justify-content: flex-end;
-  }
+  .btn-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between; align-items: center; }
+  .hint { font-size: 0.75rem; color: #525252; }
   .btn {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.25rem;
     border-radius: 8px;
     border: none;
     font-size: 0.85rem;
@@ -72,24 +59,27 @@
     cursor: pointer;
     transition: background 0.15s, opacity 0.15s;
   }
-  .btn-primary {
-    background: #fff;
-    color: #0a0a0a;
-  }
+  .btn-primary { background: #fff; color: #0a0a0a; }
   .btn-primary:hover { opacity: 0.85; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Divider */
-  .section-label {
-    font-size: 0.75rem;
-    color: #525252;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.75rem;
+  /* Status message */
+  .status {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: none;
   }
+  .status.success { display: block; background: #052e16; border: 1px solid #166534; color: #4ade80; }
+  .status.error { display: block; background: #2a0a0a; border: 1px solid #7f1d1d; color: #f87171; }
+  .status.loading { display: block; background: #1a1a2e; border: 1px solid #312e81; color: #a5b4fc; }
+
+  /* Section label */
+  .section-label { font-size: 0.75rem; color: #525252; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
 
   /* Page list */
-  .pages { display: flex; flex-direction: column; gap: 1px; }
+  .pages { display: flex; flex-direction: column; }
   .page-card {
     display: flex;
     align-items: center;
@@ -109,28 +99,9 @@
   .page-info { display: flex; flex-direction: column; gap: 0.2rem; }
   .page-name { font-weight: 500; font-size: 0.95rem; }
   .page-desc { color: #737373; font-size: 0.8rem; }
-  .arrow { color: #525252; font-size: 1.1rem; }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: #fff;
-    color: #0a0a0a;
-    padding: 0.75rem 1.25rem;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    opacity: 0;
-    transition: transform 0.3s, opacity 0.3s;
-    z-index: 10;
-  }
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
+  .page-date { color: #525252; font-size: 0.7rem; }
+  .arrow { color: #525252; font-size: 1.1rem; flex-shrink: 0; }
+  .empty { color: #525252; font-size: 0.85rem; padding: 1rem 0; }
 
   .footer {
     margin-top: 3rem;
@@ -142,30 +113,29 @@
   }
   .footer a { color: #737373; text-decoration: none; }
   .footer a:hover { color: #a3a3a3; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .loading-dot { animation: pulse 1.5s infinite; }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Quick Pages</h1>
-  <p class="subtitle">想法 → HTML → 发布</p>
+  <p class="subtitle">输入想法 → AI 自动生成 → 即时发布</p>
 
   <div class="new-page">
-    <label for="idea">我想做一个页面...</label>
-    <textarea id="idea" placeholder="描述你想要的页面，比如：&#10;&#10;做一个产品发布倒计时页面，深色背景，中间大号倒计时数字，下面放产品名称和一句话描述。"></textarea>
+    <label for="idea">描述你想要的页面</label>
+    <textarea id="idea" placeholder="比如：&#10;&#10;做一个产品发布倒计时页面，深色科技感背景，中间大号倒计时数字，下面放产品名称和一句话描述。支持手机查看。"></textarea>
     <div class="btn-row">
-      <button class="btn btn-primary" id="submit-btn" onclick="submitIdea()">提交需求</button>
+      <span class="hint">Cmd+Enter 提交</span>
+      <button class="btn btn-primary" id="submit-btn">生成页面</button>
     </div>
+    <div class="status" id="status"></div>
   </div>
 
-  <p class="section-label">已发布的页面</p>
-  <div class="pages">
-    <a href="/birthday-party" class="page-card">
-      <div class="page-info">
-        <span class="page-name">Birthday Party</span>
-        <span class="page-desc">生日派对邀请页</span>
-      </div>
-      <span class="arrow">→</span>
-    </a>
+  <p class="section-label">已发布</p>
+  <div class="pages" id="pages-list">
+    <p class="empty">加载中...</p>
   </div>
 
   <div class="footer">
@@ -173,38 +143,146 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-  const REPO = 'tumusumu/quick-pages';
+  // Escape HTML to prevent XSS
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
 
-  function submitIdea() {
-    const textarea = document.getElementById('idea');
-    const text = textarea.value.trim();
+  // Build page card using DOM methods (no innerHTML with dynamic data)
+  function createPageCard(page) {
+    var a = document.createElement('a');
+    a.href = '/' + encodeURIComponent(page.slug);
+    a.className = 'page-card';
+
+    var info = document.createElement('div');
+    info.className = 'page-info';
+
+    var name = document.createElement('span');
+    name.className = 'page-name';
+    name.textContent = page.title;
+
+    var desc = document.createElement('span');
+    desc.className = 'page-desc';
+    desc.textContent = page.desc;
+
+    var date = document.createElement('span');
+    date.className = 'page-date';
+    date.textContent = page.date;
+
+    info.appendChild(name);
+    info.appendChild(desc);
+    info.appendChild(date);
+
+    var arrow = document.createElement('span');
+    arrow.className = 'arrow';
+    arrow.textContent = '\u2192';
+
+    a.appendChild(info);
+    a.appendChild(arrow);
+    return a;
+  }
+
+  // Load pages from manifest
+  async function loadPages() {
+    var container = document.getElementById('pages-list');
+    try {
+      var res = await fetch('/pages.json');
+      var pages = await res.json();
+
+      container.textContent = '';
+
+      if (pages.length === 0) {
+        var empty = document.createElement('p');
+        empty.className = 'empty';
+        empty.textContent = '还没有页面，在上方输入想法开始创建。';
+        container.appendChild(empty);
+        return;
+      }
+
+      pages.sort(function(a, b) { return b.date.localeCompare(a.date); });
+      pages.forEach(function(p) { container.appendChild(createPageCard(p)); });
+    } catch (e) {
+      container.textContent = '';
+      var err = document.createElement('p');
+      err.className = 'empty';
+      err.textContent = '加载失败';
+      container.appendChild(err);
+    }
+  }
+
+  // Submit idea
+  async function submitIdea() {
+    var textarea = document.getElementById('idea');
+    var btn = document.getElementById('submit-btn');
+    var status = document.getElementById('status');
+    var text = textarea.value.trim();
+
     if (!text) return;
 
-    const title = text.length > 60 ? text.slice(0, 60) + '...' : text;
-    const body = `## 页面需求\n\n${text}\n\n---\n_来自 Quick Pages 首页提交_`;
-    const url = `https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=page-request`;
+    btn.disabled = true;
+    btn.textContent = '提交中...';
+    status.className = 'status loading';
+    status.textContent = '\u23F3 正在提交需求...';
 
-    window.open(url, '_blank');
-    showToast('已跳转到 GitHub，确认提交即可');
-    textarea.value = '';
+    try {
+      var res = await fetch('/api/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea: text }),
+      });
+
+      var data = await res.json();
+
+      if (data.success) {
+        status.className = 'status success';
+        status.textContent = '';
+
+        var msg = document.createElement('div');
+        msg.textContent = '\u2705 ' + data.message;
+        status.appendChild(msg);
+
+        var br = document.createElement('br');
+        status.appendChild(br);
+
+        var link = document.createElement('a');
+        link.href = data.issue_url;
+        link.target = '_blank';
+        link.style.color = '#4ade80';
+        link.textContent = '查看进度 \u2192';
+        status.appendChild(link);
+
+        var br2 = document.createElement('br');
+        status.appendChild(br2);
+
+        var hint = document.createElement('small');
+        hint.style.color = '#525252';
+        hint.textContent = 'AI 正在生成页面，约 2-3 分钟后自动上线。届时刷新本页即可看到。';
+        status.appendChild(hint);
+
+        textarea.value = '';
+      } else {
+        throw new Error(data.error || '提交失败');
+      }
+    } catch (e) {
+      status.className = 'status error';
+      status.textContent = '\u274C ' + e.message;
+    }
+
+    btn.disabled = false;
+    btn.textContent = '生成页面';
   }
 
-  // Ctrl+Enter / Cmd+Enter to submit
+  // Event listeners
+  document.getElementById('submit-btn').addEventListener('click', submitIdea);
   document.getElementById('idea').addEventListener('keydown', function(e) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      submitIdea();
-    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') submitIdea();
   });
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
+  // Init
+  loadPages();
 </script>
 </body>
 </html>

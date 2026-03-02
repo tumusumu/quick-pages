@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/pages/index.html" },
+    { "source": "/pages.json", "destination": "/pages.json" },
     { "source": "/:path*", "destination": "/pages/:path*/index.html" }
   ]
 }
