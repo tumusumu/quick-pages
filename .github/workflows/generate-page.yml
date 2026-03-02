@@ -2,11 +2,14 @@ name: Generate Page
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened]
 
 jobs:
   generate:
     if: contains(github.event.issue.labels.*.name, 'page-request')
+    concurrency:
+      group: page-generation
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: write

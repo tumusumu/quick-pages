@@ -1,6 +1,12 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { execFileSync } from 'child_process';
 
+// Fail fast if API key is missing
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.error('ANTHROPIC_API_KEY is not set');
+  process.exit(1);
+}
+
 const title = process.env.ISSUE_TITLE;
 const body = process.env.ISSUE_BODY;
 const issueNumber = process.env.ISSUE_NUMBER;
@@ -82,12 +88,42 @@ if (!toolUse) {
   process.exit(1);
 }
 
+// Validate response fields
 const { slug, title: pageTitle, description, html } = toolUse.input;
 
-// Sanitize slug to prevent path traversal or injection
-const safeSlug = slug.replace(/[^a-z0-9-]/g, '').slice(0, 40);
-if (!safeSlug) {
+if (typeof slug !== 'string' || typeof pageTitle !== 'string' ||
+    typeof description !== 'string' || typeof html !== 'string') {
+  console.error('Invalid field types in tool response:', JSON.stringify(toolUse.input).slice(0, 500));
+  process.exit(1);
+}
+
+if (!html.trim()) {
+  console.error('Empty HTML in response');
+  process.exit(1);
+}
+
+const MAX_HTML_SIZE = 500 * 1024; // 500KB
+if (html.length > MAX_HTML_SIZE) {
+  console.error(`HTML too large: ${html.length} bytes (max ${MAX_HTML_SIZE})`);
+  process.exit(1);
+}
+
+// Sanitize slug
+const safeSlug = slug.replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+
+if (!safeSlug || safeSlug === '-') {
   console.error('Invalid slug generated:', slug);
+  process.exit(1);
+}
+
+if (!/[a-z]/.test(safeSlug)) {
+  console.error('Slug must contain at least one letter:', safeSlug);
+  process.exit(1);
+}
+
+const RESERVED_SLUGS = ['api', 'pages', 'index', 'static', '_next'];
+if (RESERVED_SLUGS.includes(safeSlug)) {
+  console.error('Slug is a reserved word:', safeSlug);
   process.exit(1);
 }
 
@@ -114,6 +150,9 @@ if (!pages.find(p => p.slug === safeSlug)) {
   console.log(`📋 Updated pages.json (${pages.length} pages)`);
 }
 
+// Save result BEFORE git push so the comment step always has data
+writeFileSync('/tmp/generate-result.json', JSON.stringify({ slug: safeSlug, title: pageTitle }));
+
 // Git commit and push (using execFileSync to avoid shell injection)
 execFileSync('git', ['config', 'user.name', 'Quick Pages Bot']);
 execFileSync('git', ['config', 'user.email', 'bot@quick-pages.vercel.app']);
@@ -121,6 +160,3 @@ execFileSync('git', ['add', '-A']);
 execFileSync('git', ['commit', '-m', `auto: generate ${safeSlug} (issue #${issueNumber})`]);
 execFileSync('git', ['push']);
 console.log('🚀 Pushed to main');
-
-// Save result for the comment step
-writeFileSync('/tmp/generate-result.json', JSON.stringify({ slug: safeSlug, title: pageTitle }));
