@@ -4,5 +4,11 @@
     "title": "Birthday Party",
     "desc": "生日派对邀请页",
     "date": "2026-03-02"
+  },
+  {
+    "slug": "countdown-timer",
+    "title": "极简倒计时器",
+    "desc": "一个极简风格的倒计时器，支持自定义分钟数和大字体显示",
+    "date": "2026-03-02"
   }
 ]
