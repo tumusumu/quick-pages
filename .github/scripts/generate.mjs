@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { execFileSync } from 'child_process';
 
 // Fail fast if API key is missing
-if (!process.env.ANTHROPIC_API_KEY) {
-  console.error('ANTHROPIC_API_KEY is not set');
+if (!process.env.DEEPSEEK_API_KEY) {
+  console.error('DEEPSEEK_API_KEY is not set');
   process.exit(1);
 }
 
@@ -18,44 +18,46 @@ const idea = ideaMatch ? ideaMatch[1].trim() : body.trim();
 console.log(`📝 Issue #${issueNumber}: ${title}`);
 console.log(`💡 Idea: ${idea.slice(0, 200)}`);
 
-// Call Claude API with tool_use for structured output
-const response = await fetch('https://api.anthropic.com/v1/messages', {
+// Call DeepSeek API with function calling for structured output
+const response = await fetch('https://api.deepseek.com/chat/completions', {
   method: 'POST',
   headers: {
-    'x-api-key': process.env.ANTHROPIC_API_KEY,
-    'anthropic-version': '2023-06-01',
-    'content-type': 'application/json',
+    'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    model: 'claude-sonnet-4-20250514',
+    model: 'deepseek-chat',
     max_tokens: 16000,
     tools: [{
-      name: 'create_page',
-      description: 'Output the generated page with metadata',
-      input_schema: {
-        type: 'object',
-        properties: {
-          slug: {
-            type: 'string',
-            description: 'URL-friendly slug: lowercase english, hyphens only, no spaces, max 40 chars. Example: birthday-party, product-launch',
+      type: 'function',
+      function: {
+        name: 'create_page',
+        description: 'Output the generated page with metadata',
+        parameters: {
+          type: 'object',
+          properties: {
+            slug: {
+              type: 'string',
+              description: 'URL-friendly slug: lowercase english, hyphens only, no spaces, max 40 chars. Example: birthday-party, product-launch',
+            },
+            title: {
+              type: 'string',
+              description: 'Short page title, max 40 chars',
+            },
+            description: {
+              type: 'string',
+              description: 'One-line description in Chinese, max 60 chars',
+            },
+            html: {
+              type: 'string',
+              description: 'Complete self-contained HTML page source code',
+            },
           },
-          title: {
-            type: 'string',
-            description: 'Short page title, max 40 chars',
-          },
-          description: {
-            type: 'string',
-            description: 'One-line description in Chinese, max 60 chars',
-          },
-          html: {
-            type: 'string',
-            description: 'Complete self-contained HTML page source code',
-          },
+          required: ['slug', 'title', 'description', 'html'],
         },
-        required: ['slug', 'title', 'description', 'html'],
       },
     }],
-    tool_choice: { type: 'tool', name: 'create_page' },
+    tool_choice: { type: 'function', function: { name: 'create_page' } },
     messages: [{
       role: 'user',
       content: `根据以下需求，生成一个精美的自包含 HTML 页面。
@@ -77,19 +79,27 @@ const response = await fetch('https://api.anthropic.com/v1/messages', {
 
 if (!response.ok) {
   const err = await response.text();
-  console.error('Claude API error:', response.status, err);
+  console.error('DeepSeek API error:', response.status, err);
   process.exit(1);
 }
 
 const data = await response.json();
-const toolUse = data.content.find(c => c.type === 'tool_use');
-if (!toolUse) {
-  console.error('No tool_use in response:', JSON.stringify(data.content));
+const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+if (!toolCall || toolCall.function.name !== 'create_page') {
+  console.error('No valid tool call in response:', JSON.stringify(data.choices?.[0]?.message));
+  process.exit(1);
+}
+
+let parsed;
+try {
+  parsed = JSON.parse(toolCall.function.arguments);
+} catch (e) {
+  console.error('Failed to parse tool call arguments:', toolCall.function.arguments.slice(0, 500));
   process.exit(1);
 }
 
 // Validate response fields
-const { slug, title: pageTitle, description, html } = toolUse.input;
+const { slug, title: pageTitle, description, html } = parsed;
 
 if (typeof slug !== 'string' || typeof pageTitle !== 'string' ||
     typeof description !== 'string' || typeof html !== 'string') {
