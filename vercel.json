@@ -1,4 +1,12 @@
 {
+  "headers": [
+    {
+      "source": "/pages.json",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/pages/index.html" },
     { "source": "/pages.json", "destination": "/pages.json" },

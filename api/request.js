@@ -14,13 +14,18 @@ function isRateLimited(ip) {
   return entry.count > RATE_LIMIT;
 }
 
-const ALLOWED_ORIGIN = 'https://quick-pages.vercel.app';
+const ALLOWED_ORIGINS = [
+  'https://quick-pages.vercel.app',
+  'https://frankhwang.com',
+  'https://www.frankhwang.com',
+];
 
 module.exports = async (req, res) => {
   const origin = req.headers.origin;
-  if (origin === ALLOWED_ORIGIN) {
-    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
   }
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
