@@ -2,10 +2,12 @@ import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { execFileSync } from 'child_process';
 
 // Fail fast if API key is missing
-if (!process.env.DEEPSEEK_API_KEY) {
-  console.error('DEEPSEEK_API_KEY is not set');
+if (!process.env.OPENROUTER_API_KEY) {
+  console.error('OPENROUTER_API_KEY is not set');
   process.exit(1);
 }
+
+const LLM_MODEL = process.env.LLM_MODEL || 'deepseek/deepseek-chat-v3-0324';
 
 const title = process.env.ISSUE_TITLE;
 const body = process.env.ISSUE_BODY;
@@ -18,15 +20,18 @@ const idea = ideaMatch ? ideaMatch[1].trim() : body.trim();
 console.log(`📝 Issue #${issueNumber}: ${title}`);
 console.log(`💡 Idea: ${idea.slice(0, 200)}`);
 
-// Call DeepSeek API with function calling for structured output
-const response = await fetch('https://api.deepseek.com/chat/completions', {
+// Call LLM via OpenRouter (OpenAI-compatible)
+console.log(`🤖 Using model: ${LLM_MODEL}`);
+const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
     'Content-Type': 'application/json',
+    'HTTP-Referer': 'https://quick-pages.vercel.app',
+    'X-Title': 'Quick Pages',
   },
   body: JSON.stringify({
-    model: 'deepseek-chat',
+    model: LLM_MODEL,
     max_tokens: 16000,
     tools: [{
       type: 'function',
@@ -79,7 +84,7 @@ const response = await fetch('https://api.deepseek.com/chat/completions', {
 
 if (!response.ok) {
   const err = await response.text();
-  console.error('DeepSeek API error:', response.status, err);
+  console.error('OpenRouter API error:', response.status, err);
   process.exit(1);
 }
 
@@ -103,7 +108,7 @@ const { slug, title: pageTitle, description, html } = parsed;
 
 if (typeof slug !== 'string' || typeof pageTitle !== 'string' ||
     typeof description !== 'string' || typeof html !== 'string') {
-  console.error('Invalid field types in tool response:', JSON.stringify(toolUse.input).slice(0, 500));
+  console.error('Invalid field types in tool response:', JSON.stringify(parsed).slice(0, 500));
   process.exit(1);
 }
 
